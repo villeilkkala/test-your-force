@@ -93,7 +93,7 @@ public class UnitySerialPort : MonoBehaviour
     }
 
     // Set the gui to show ready
-    private string rawData = "Ready";
+    private string rawData = "0,0,0,0,0,0,0,0,0,0";
     public string RawData
     {
         get { return rawData; }
@@ -531,12 +531,16 @@ public class UnitySerialPort : MonoBehaviour
                 char rData =(char) SerialPort.ReadChar();
                 // If the data is valid then do something with it
                 //if (rData != null && rData != "")
+
+//                Debug.Log(rData);
+
                 if(sb == null)
                     sb = new StringBuilder("");
                 
                 {
                     if (rData == '\n')// || rData == 'R')
                     {
+                    	Debug.Log("Found newline");
                         if(!first)
                             RawData = sb.ToString();
                         packetFull(RawData);
@@ -548,11 +552,11 @@ public class UnitySerialPort : MonoBehaviour
 
                         first = false;
 
+                        Debug.Log("Newline handling ok");
                     }
                     else
                     {
                         sb.Append(rData, 1);
-//                        tempRaw = sb.ToString();
                     }
 
 
@@ -582,6 +586,7 @@ public class UnitySerialPort : MonoBehaviour
             {
                 // Something has gone wrong!
                 Debug.Log("Error 4: " + ex.Message.ToString());
+                sb = new StringBuilder();
             }
             else
             {
@@ -607,6 +612,7 @@ public class UnitySerialPort : MonoBehaviour
 
     private void packetFull(String packet)
     {
+    	Debug.Log("Packet full: " + packet);
         var split = packet.Split(',');
         packet = split[0];
         x = float.Parse(split[1]);
@@ -618,7 +624,7 @@ public class UnitySerialPort : MonoBehaviour
         zoom = float.Parse(split[7]);
         focus = float.Parse(split[8]);
         iris = float.Parse(split[9]);
-
+		Debug.Log("Packet full done");
     }
 
     /// <summary>
@@ -655,11 +661,13 @@ public class UnitySerialPort : MonoBehaviour
         // Loop through all available ports and add them to the list
         foreach (string cPort in System.IO.Ports.SerialPort.GetPortNames())
         {
-            comPorts.Add(cPort); // Debug.Log(cPort.ToString());
+            comPorts.Add(cPort); Debug.Log(cPort.ToString());
         }
 
         // Update the port status just in case :)
         portStatus = "ComPort list population complete";
+
+        Debug.Log(portStatus);
     }
 
     /// <summary>
