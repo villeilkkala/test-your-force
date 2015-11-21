@@ -7,6 +7,7 @@ public class GameLogic : MonoBehaviour {
 	public laserScript laser;
 	public AudioClip prepare;
 	public AudioClip die;
+	public AudioClip pain;
 	public AudioClip miss;
 	public AudioClip ready;
 
@@ -86,8 +87,15 @@ public class GameLogic : MonoBehaviour {
 		{	
 			yield return new WaitForSeconds(0.35f);
 			Debug.Log("HIT!");
-			GetComponent<AudioSource>().PlayOneShot(die);
 			hitCounter++;
+			if (hitCounter < 3)
+				GetComponent<AudioSource>().PlayOneShot(pain);
+			else
+			{
+				GetComponent<AudioSource>().PlayOneShot(die);
+				playing = false;
+			}
+
 		}
 		else
 		{
