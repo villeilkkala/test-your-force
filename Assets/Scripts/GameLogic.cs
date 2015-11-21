@@ -10,6 +10,8 @@ public class GameLogic : MonoBehaviour {
 	public AudioClip miss;
 	public AudioClip ready;
 
+	public bool WaitForReady = false;
+
 	public UnitySerialPort listener;
 
 	public List<float> keyframes;
@@ -44,7 +46,10 @@ public class GameLogic : MonoBehaviour {
 	{
 		while (listener.IsZero() || listener.NotChanged())
 		{
-			yield return WaitForEndOfFrame();
+			if (!WaitForReady)
+				break;
+
+			yield return new WaitForEndOfFrame();
 		}
 
 		Debug.Log("Start");
