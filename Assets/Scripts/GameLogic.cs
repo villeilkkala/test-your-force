@@ -10,14 +10,15 @@ public class GameLogic : MonoBehaviour {
 	public List<float> keyframes;
 
 	private IEnumerator<float> frameEnumerator;
-	private float lastFrame;
 	private bool playing;
 
 	private int hitCounter = 0;
 
+	private float accumulatedDwell = 0f;
+	private float dwellValue = 4f;
+
 	// Use this for initialization
 	void Start () {
-		lastFrame = 0f;
 		frameEnumerator = keyframes.GetEnumerator();
 		frameEnumerator.MoveNext();
 		playing = true;
@@ -25,13 +26,13 @@ public class GameLogic : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (playing && Time.unscaledTime - lastFrame > frameEnumerator.Current)
+		if (playing && Time.unscaledTime > frameEnumerator.Current + accumulatedDwell)
 		{
 			StartCoroutine("Shoot");
 
 			if (frameEnumerator.MoveNext())
 			{
-				lastFrame = Time.unscaledTime;
+				accumulatedDwell += dwellValue;
 			}
 			else
 			{
@@ -44,7 +45,7 @@ public class GameLogic : MonoBehaviour {
 	IEnumerator Shoot ()
 	{
 		GetComponent<AudioSource>().PlayOneShot(prepare);
-		Debug.Log("Preparing to shoot");
+		Debug.Log(string.Format("Preparing to shoot. Time {0}", Time.unscaledTime));
 		yield return new WaitForSeconds(4.0f);
 
 		if (laser.Shoot())
