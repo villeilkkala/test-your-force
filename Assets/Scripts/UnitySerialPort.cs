@@ -99,6 +99,8 @@ public class UnitySerialPort : MonoBehaviour
         get { return rawData; }
         set { rawData = value; }
     }
+
+	string initialRawData = String.Empty;
     
     // Storage for parsed incoming data
     private string[] chunkData;
@@ -540,7 +542,12 @@ public class UnitySerialPort : MonoBehaviour
                         packetFull(RawData);
                         sb = new StringBuilder("");
                         tempRaw = sb.Append(rData,1).ToString();
+
+                        if (first)
+                        	initialRawData = RawData;
+
                         first = false;
+
                     }
                     else
                     {
@@ -722,4 +729,17 @@ public class UnitySerialPort : MonoBehaviour
         // Return the new BaudRate just in case
         return BaudRate;
     }
+
+	public bool IsZero ()
+	{
+		if (x == 0 && y == 0 && z == 0)
+			return true;
+		else
+			return false;
+	}
+
+	public bool NotChanged ()
+	{
+		return initialRawData == String.Empty || initialRawData == RawData;
+	}
 }

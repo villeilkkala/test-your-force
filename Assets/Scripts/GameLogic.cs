@@ -6,10 +6,18 @@ public class GameLogic : MonoBehaviour {
 
 	public laserScript laser;
 	public AudioClip prepare;
+	public AudioClip die;
+	public AudioClip miss;
+	public AudioClip ready;
+
+	public UnitySerialPort listener;
 
 	public List<float> keyframes;
+	public List<float> dwells;
 
 	private IEnumerator<float> frameEnumerator;
+	private IEnumerator<float> dwellEnumerator;
+
 	private bool playing;
 
 	private int hitCounter = 0;
@@ -17,22 +25,43 @@ public class GameLogic : MonoBehaviour {
 	private float accumulatedDwell = 0f;
 	private float dwellValue = 4f;
 
+	private float shotLength = 4f;
+
+	private float initialDelay = 0f;
+
 	// Use this for initialization
 	void Start () {
 		frameEnumerator = keyframes.GetEnumerator();
 		frameEnumerator.MoveNext();
+
+		dwellEnumerator = dwells.GetEnumerator();
+		dwellEnumerator.MoveNext();
+
+		StartCoroutine("WaitForCrane");
+	}
+
+	private IEnumerator WaitForCrane()
+	{
+		while (listener.IsZero() || listener.NotChanged())
+		{
+			yield return WaitForEndOfFrame();
+		}
+
+		Debug.Log("Start");
+		GetComponent<AudioSource>().PlayOneShot(ready);
 		playing = true;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-		if (playing && Time.unscaledTime > frameEnumerator.Current + accumulatedDwell)
+		if (playing && Time.unscaledTime > frameEnumerator.Current + accumulatedDwell + dwellEnumerator.Current - shotLength)
 		{
-			StartCoroutine("Shoot");
+			StartCoroutine("Shoot", dwellEnumerator.Current);
 
 			if (frameEnumerator.MoveNext())
 			{
-				accumulatedDwell += dwellValue;
+				accumulatedDwell += dwellEnumerator.Current;
+				dwellEnumerator.MoveNext();
 			}
 			else
 			{
@@ -42,16 +71,23 @@ public class GameLogic : MonoBehaviour {
 		}
 	}
 
-	IEnumerator Shoot ()
+	IEnumerator Shoot (float dwell)
 	{
 		GetComponent<AudioSource>().PlayOneShot(prepare);
 		Debug.Log(string.Format("Preparing to shoot. Time {0}", Time.unscaledTime));
-		yield return new WaitForSeconds(4.0f);
+		yield return new WaitForSeconds(dwell);
 
 		if (laser.Shoot())
 		{	
+			yield return new WaitForSeconds(0.35f);
 			Debug.Log("HIT!");
+			GetComponent<AudioSource>().PlayOneShot(die);
 			hitCounter++;
+		}
+		else
+		{
+			yield return new WaitForSeconds(0.35f);
+			GetComponent<AudioSource>().PlayOneShot(miss);
 		}
 
 		Debug.Log(string.Format("Current hits {0}", hitCounter));
