@@ -5,11 +5,13 @@ using System.Collections.Generic;
 public class GameLogic : MonoBehaviour {
 
 	public laserScript laser;
-	public AudioClip prepare;
+	public AudioClip shoot;
 	public AudioClip die;
 	public AudioClip pain;
 	public AudioClip miss;
 	public AudioClip ready;
+
+	public StaticController soundController;
 
 	public bool WaitForReady = false;
 
@@ -52,6 +54,7 @@ public class GameLogic : MonoBehaviour {
 
 			yield return new WaitForEndOfFrame();
 		}
+		initialDelay = Time.unscaledTime;
 
 		Debug.Log("Start");
 		GetComponent<AudioSource>().PlayOneShot(ready);
@@ -60,8 +63,9 @@ public class GameLogic : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (playing && Time.unscaledTime > frameEnumerator.Current + accumulatedDwell + dwellEnumerator.Current - shotLength)
+		if (playing && Time.unscaledTime > frameEnumerator.Current + accumulatedDwell + dwellEnumerator.Current - shotLength + initialDelay)
 		{
+//			Debug.Log(string.Format("Time {0} Current frame {1} Accumulated dwell {2} Next dwell {3} Shot length {4}", Time.unscaledTime, frameEnumerator.Current, accumulatedDwell, dwellEnumerator.Current, shotLength));
 			StartCoroutine("Shoot", dwellEnumerator.Current);
 
 			if (frameEnumerator.MoveNext())
@@ -79,9 +83,11 @@ public class GameLogic : MonoBehaviour {
 
 	IEnumerator Shoot (float dwell)
 	{
-		GetComponent<AudioSource>().PlayOneShot(prepare);
+		GetComponent<AudioSource>().PlayOneShot(shoot);
 		Debug.Log(string.Format("Preparing to shoot. Time {0}", Time.unscaledTime));
+		soundController.cameraMoving = false;
 		yield return new WaitForSeconds(dwell);
+		soundController.cameraMoving = true;
 
 		if (laser.Shoot())
 		{	

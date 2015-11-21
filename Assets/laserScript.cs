@@ -3,7 +3,7 @@ using System.Collections;
 
 public class laserScript : MonoBehaviour {
 	public AudioClip shot;
-	public MeshRenderer saber;
+	public LineRenderer saber;
 	public Transform startPoint;
 	public Transform endPoint;
 	LineRenderer laserLine;
