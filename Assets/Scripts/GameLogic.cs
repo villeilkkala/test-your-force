@@ -13,6 +13,8 @@ public class GameLogic : MonoBehaviour {
 	private float lastFrame;
 	private bool playing;
 
+	private int hitCounter = 0;
+
 	// Use this for initialization
 	void Start () {
 		lastFrame = 0f;
@@ -45,13 +47,19 @@ public class GameLogic : MonoBehaviour {
 		Debug.Log("Preparing to shoot");
 		yield return new WaitForSeconds(4.0f);
 
-		laser.Shoot();
+		if (laser.Shoot())
+		{	
+			Debug.Log("HIT!");
+			hitCounter++;
+		}
+
+		Debug.Log(string.Format("Current hits {0}", hitCounter));
 		yield return null;
 	}
 
 	IEnumerator GameEnd()
 	{
-		yield return new WaitForSeconds(2f);
+		yield return new WaitForSeconds(5f);
 		Debug.Log("End of round!");
 	}
 }

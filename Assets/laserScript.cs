@@ -3,7 +3,7 @@ using System.Collections;
 
 public class laserScript : MonoBehaviour {
 	public AudioClip shot;
-
+	public MeshRenderer saber;
 	public Transform startPoint;
 	public Transform endPoint;
 	LineRenderer laserLine;
@@ -20,12 +20,13 @@ public class laserScript : MonoBehaviour {
 
 	}
 
-	public void Shoot()
+	public bool Shoot()
 	{
 		Debug.Log("Shot!");
 		GetComponent<AudioSource>().PlayOneShot(shot);
 		laserLine.enabled = true;
 		StartCoroutine("StopLaser");
+		return !saber.enabled;
 
 	}
 
