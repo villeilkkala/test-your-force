@@ -11,6 +11,8 @@ public class GameLogic : MonoBehaviour {
 	public AudioClip miss;
 	public AudioClip ready;
 
+	public int i = 0;
+
 	public StaticController soundController;
 
 	public bool WaitForReady = false;
@@ -24,11 +26,9 @@ public class GameLogic : MonoBehaviour {
 	private IEnumerator<float> dwellEnumerator;
 
 	private bool playing;
+	private bool soundPlayed = false;
 
 	private int hitCounter = 0;
-
-	private float accumulatedDwell = 0f;
-	private float dwellValue = 4f;
 
 	private float shotLength = 4f;
 
@@ -63,15 +63,34 @@ public class GameLogic : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		if (playing && Time.unscaledTime > frameEnumerator.Current + accumulatedDwell + dwellEnumerator.Current - shotLength + initialDelay)
+		float currentDwell = dwellEnumerator.Current < 0 ? 4f : dwellEnumerator.Current;
+		if (playing && !soundPlayed && Time.unscaledTime > frameEnumerator.Current + currentDwell - shotLength + initialDelay)
 		{
-//			Debug.Log(string.Format("Time {0} Current frame {1} Accumulated dwell {2} Next dwell {3} Shot length {4}", Time.unscaledTime, frameEnumerator.Current, accumulatedDwell, dwellEnumerator.Current, shotLength));
+			soundPlayed = true;
+
+			if (dwellEnumerator.Current > -0.5)
+			{
+				Debug.Log(string.Format("Playing sound {0} at time {1} Keyframe {2} Dwell {3} Shot length {4} Delay {5}", i,  Time.unscaledTime, frameEnumerator.Current, currentDwell, shotLength, initialDelay));
+				GetComponent<AudioSource>().PlayOneShot(shoot);
+			}
+			else
+			{
+				Debug.Log("Round change sound at time " + Time.unscaledTime);
+				GetComponent<AudioSource>().PlayOneShot(ready);
+			}
+		}
+		if (playing && Time.unscaledTime > frameEnumerator.Current + initialDelay)
+		{
+			Debug.Log("Starting stuff at " + Time.unscaledTime);
+			Debug.Log("Shot " + i + " at keyframe time " + (Time.unscaledTime - initialDelay));
+
 			StartCoroutine("Shoot", dwellEnumerator.Current);
 
 			if (frameEnumerator.MoveNext())
 			{
-				accumulatedDwell += dwellEnumerator.Current;
 				dwellEnumerator.MoveNext();
+				soundPlayed = false;
+				i++;
 			}
 			else
 			{
@@ -83,7 +102,11 @@ public class GameLogic : MonoBehaviour {
 
 	IEnumerator Shoot (float dwell)
 	{
-		GetComponent<AudioSource>().PlayOneShot(shoot);
+		if (dwell < 0)
+		{
+			yield break;
+		}
+
 		Debug.Log(string.Format("Preparing to shoot. Time {0}", Time.unscaledTime));
 		soundController.cameraMoving = false;
 		yield return new WaitForSeconds(dwell);
@@ -92,7 +115,7 @@ public class GameLogic : MonoBehaviour {
 		if (laser.Shoot())
 		{	
 			yield return new WaitForSeconds(0.35f);
-			Debug.Log("HIT!");
+			Debug.Log("HIT! " + Time.unscaledTime);
 			hitCounter++;
 			if (hitCounter < 3)
 				GetComponent<AudioSource>().PlayOneShot(pain);
@@ -106,6 +129,7 @@ public class GameLogic : MonoBehaviour {
 		else
 		{
 			yield return new WaitForSeconds(0.35f);
+			Debug.Log("BLOCK " + Time.unscaledTime);
 			GetComponent<AudioSource>().PlayOneShot(miss);
 		}
 

@@ -23,7 +23,7 @@ public class laserScript : MonoBehaviour {
 	public bool Shoot()
 	{
 		Debug.Log("Shot!");
-		GetComponent<AudioSource>().PlayOneShot(shot);
+//		GetComponent<AudioSource>().PlayOneShot(shot);
 		laserLine.enabled = true;
 		StartCoroutine("StopLaser");
 		return !saber.enabled;
