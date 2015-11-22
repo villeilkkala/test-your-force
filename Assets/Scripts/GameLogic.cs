@@ -20,6 +20,8 @@ public class GameLogic : MonoBehaviour {
 
 	public UnitySerialPort listener;
 
+	public ShieldAnimator Shields;
+
 	public List<float> keyframes;
 	public List<float> dwells;
 
@@ -132,6 +134,7 @@ public class GameLogic : MonoBehaviour {
 			yield return new WaitForSeconds(0.35f);
 			Debug.Log("HIT! " + Time.unscaledTime);
 			hitCounter++;
+			Shields.RemoveShield();
 			if (hitCounter < 3)
 				GetComponent<AudioSource>().PlayOneShot(pain);
 			else

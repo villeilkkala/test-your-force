@@ -100,7 +100,7 @@ public class UnitySerialPort : MonoBehaviour
         set { rawData = value; }
     }
 
-	string initialRawData = String.Empty;
+	float initialX = 0f;
     
     // Storage for parsed incoming data
     private string[] chunkData;
@@ -540,19 +540,17 @@ public class UnitySerialPort : MonoBehaviour
                 {
                     if (rData == '\n')// || rData == 'R')
                     {
-                    	Debug.Log("Found newline");
                         if(!first)
                             RawData = sb.ToString();
                         packetFull(RawData);
                         sb = new StringBuilder("");
                         tempRaw = sb.Append(rData,1).ToString();
 
-                        if (first)
-                        	initialRawData = RawData;
+                        if (initialX == 0f && RawData != "0,0,0,0,0,0,0,0,0")
+                        	initialX = float.Parse(RawData.Split(',')[1]);
 
                         first = false;
 
-                        Debug.Log("Newline handling ok");
                     }
                     else
                     {
@@ -612,7 +610,6 @@ public class UnitySerialPort : MonoBehaviour
 
     private void packetFull(String packet)
     {
-    	Debug.Log("Packet full: " + packet);
         var split = packet.Split(',');
         packet = split[0];
         x = float.Parse(split[1]);
@@ -624,7 +621,6 @@ public class UnitySerialPort : MonoBehaviour
         zoom = float.Parse(split[7]);
         focus = float.Parse(split[8]);
         iris = float.Parse(split[9]);
-		Debug.Log("Packet full done");
     }
 
     /// <summary>
@@ -748,6 +744,6 @@ public class UnitySerialPort : MonoBehaviour
 
 	public bool NotChanged ()
 	{
-		return initialRawData == String.Empty || initialRawData == RawData;
+		return initialX == 0f || Math.Abs(initialX - float.Parse(RawData.Split(',')[1])) < 0.02f;
 	}
 }
