@@ -73,7 +73,7 @@ public class GameLogic : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float currentDwell = dwellEnumerator.Current < 0 ? 4f : dwellEnumerator.Current;
-		if (playing && !soundPlayed && Time.unscaledTime > frameEnumerator.Current + currentDwell - shotLength + initialDelay)
+		if (playing && !soundPlayed && Time.unscaledTime > frameEnumerator.Current + dwellEnumerator.Current - shotLength + initialDelay)
 		{
 			soundPlayed = true;
 
