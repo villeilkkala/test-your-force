@@ -6,6 +6,7 @@ public class GameLogic : MonoBehaviour {
 
 	public laserScript laser;
 	public AudioClip shoot;
+	public AudioClip shootShort;
 	public AudioClip die;
 	public AudioClip pain;
 	public AudioClip miss;
@@ -30,8 +31,16 @@ public class GameLogic : MonoBehaviour {
 
 	private int hitCounter = 0;
 
-	private float shotLength = 4f;
-
+	private float shotLength
+	{
+		get
+		{
+			if (dwellEnumerator.Current > 0.5f)
+			 	return 4f;
+			else
+				return 2.9f;
+		}
+	}
 	private float initialDelay = 0f;
 
 	// Use this for initialization
@@ -71,7 +80,13 @@ public class GameLogic : MonoBehaviour {
 			if (dwellEnumerator.Current > -0.5)
 			{
 				Debug.Log(string.Format("Playing sound {0} at time {1} Keyframe {2} Dwell {3} Shot length {4} Delay {5}", i,  Time.unscaledTime, frameEnumerator.Current, currentDwell, shotLength, initialDelay));
-				GetComponent<AudioSource>().PlayOneShot(shoot);
+
+				if (dwellEnumerator.Current > 0)
+					GetComponent<AudioSource>().PlayOneShot(shoot);
+				else 
+				{
+					GetComponent<AudioSource>().PlayOneShot(shootShort);
+				}
 			}
 			else
 			{
