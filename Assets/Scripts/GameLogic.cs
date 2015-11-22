@@ -65,7 +65,7 @@ public class GameLogic : MonoBehaviour {
 
 			yield return new WaitForEndOfFrame();
 		}
-		initialDelay = Time.unscaledTime;
+		initialDelay = Time.unscaledTime - 0.5f;
 
 		Debug.Log("Start");
 		GetComponent<AudioSource>().PlayOneShot(ready);
